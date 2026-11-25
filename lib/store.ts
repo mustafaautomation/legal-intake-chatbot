@@ -18,10 +18,19 @@ interface Database {
   seq: number;
 }
 
+/** Vercel serverless can write only to /tmp. The project directory is read-only. */
 function dbPath(): string {
   if (process.env.DATA_PATH) return process.env.DATA_PATH;
-  if (process.env.VERCEL) return "/tmp/legal-intake.json";
+  if (process.env.VERCEL) return path.join("/tmp", "legal-intake.json");
   return path.join(process.cwd(), "data", "intake.json");
+}
+
+let memory: Database | null = null;
+let memoryOnly = false;
+
+function readOnlyError(error: unknown): boolean {
+  const code = (error as NodeJS.ErrnoException)?.code;
+  return code === "EROFS" || code === "EACCES" || code === "EPERM" || code === "ENOSPC";
 }
 
 function emptyIntake(partial: Partial<IntakeAnswers> = {}): IntakeAnswers {
@@ -230,30 +239,54 @@ function seed(now: Date): Database {
 }
 
 function read(): Database {
-  const file = dbPath();
-  if (!fs.existsSync(file)) {
-    const initial = seed(new Date());
-    write(initial);
-    return initial;
+  if (memoryOnly && memory) return memory;
+  try {
+    const file = dbPath();
+    if (!fs.existsSync(file)) {
+      const initial = seed(new Date());
+      write(initial);
+      return memoryOnly && memory ? memory : initial;
+    }
+    const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as Database;
+    if (!Array.isArray(parsed.tickets)) parsed.tickets = [];
+    if (!Array.isArray(parsed.bookings)) parsed.bookings = [];
+    return parsed;
+  } catch (error) {
+    if (!readOnlyError(error) && (error as NodeJS.ErrnoException)?.code !== "ENOENT") throw error;
+    memoryOnly = true;
+    memory = memory ?? seed(new Date());
+    return memory;
   }
-  const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as Database;
-  if (!Array.isArray(parsed.tickets)) parsed.tickets = [];
-  if (!Array.isArray(parsed.bookings)) parsed.bookings = [];
-  return parsed;
 }
 
 function audit(detail: unknown) {
-  const file = path.join(path.dirname(dbPath()), "audit.log");
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.appendFileSync(file, `${redact(JSON.stringify(detail))}\n`);
+  if (memoryOnly) return;
+  try {
+    const file = path.join(path.dirname(dbPath()), "audit.log");
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.appendFileSync(file, `${redact(JSON.stringify(detail))}\n`);
+  } catch (error) {
+    if (!readOnlyError(error)) throw error;
+    memoryOnly = true;
+  }
 }
 
 function write(db: Database) {
+  if (memoryOnly) {
+    memory = db;
+    return;
+  }
   const file = dbPath();
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  const tmp = `${file}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
-  fs.renameSync(tmp, file);
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
+    fs.renameSync(tmp, file);
+  } catch (error) {
+    if (!readOnlyError(error)) throw error;
+    memoryOnly = true;
+    memory = db;
+  }
 }
 
 let chain: Promise<unknown> = Promise.resolve();
