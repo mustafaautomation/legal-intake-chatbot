@@ -78,6 +78,7 @@ export interface Citation {
   id: string;
   title: string;
   source: string;
+  excerpt?: string;
 }
 
 export interface ToolTrace {

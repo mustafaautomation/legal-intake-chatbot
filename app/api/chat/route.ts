@@ -24,7 +24,8 @@ export async function POST(request: Request) {
 
   const result = await commitTurn(sessionId, message, (session, ctx) => respond(session, message, ctx));
   if ("error" in result) return Response.json({ error: result.error }, { status: result.status });
-  if (!stream) return Response.json({ session: result.session });
+  const mode = "mode" in result && result.mode === "live" ? "live" : "demo";
+  if (!stream) return Response.json({ session: result.session, mode });
 
   const text = lastAssistant(result.session);
   const encoder = new TextEncoder();
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       for (const part of chunkText(text)) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "delta", text: part })}\n\n`));
       }
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done", session: result.session })}\n\n`));
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done", session: result.session, mode })}\n\n`));
       controller.close();
     },
   });

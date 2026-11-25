@@ -338,7 +338,7 @@ export async function commitTurn(
   message: string,
   produce: (session: Session, ctx: TurnContext) => TurnOutcome | Promise<TurnOutcome>,
   now = new Date(),
-): Promise<{ session: Session } | { error: string; status: number }> {
+): Promise<{ session: Session; mode: "live" | "demo" } | { error: string; status: number }> {
   return updateStore(async (db) => {
     const index = db.sessions.findIndex((session) => session.id === sessionId);
     if (index < 0) return { error: "That intake session is not on this desk.", status: 404 };
@@ -372,7 +372,33 @@ export async function commitTurn(
       tools: outcome.session.messages.at(-1)?.tools?.map((tool) => tool.name) ?? [],
       ticket: outcome.ticket?.id ?? null,
     });
-    return { session: outcome.session };
+    const produced = outcome as TurnOutcome & { mode?: "live" | "demo" };
+    return { session: outcome.session, mode: produced.mode === "live" ? "live" : "demo" };
+  });
+}
+
+export async function resumeBot(sessionId: string, now = new Date()): Promise<{ session: Session } | { error: string; status: number }> {
+  return updateStore((db) => {
+    const session = db.sessions.find((item) => item.id === sessionId);
+    if (!session) return { error: "That intake session is not on this desk.", status: 404 };
+    session.handoff = false;
+    if (
+      session.stage === "closed" &&
+      session.status !== "urgent" &&
+      session.status !== "consult_booked" &&
+      session.status !== "conflict_hold" &&
+      session.status !== "unqualified"
+    ) {
+      session.stage = session.practiceArea ? "collecting" : "greeting";
+    }
+    session.messages.push({
+      id: `resume-${now.getTime()}`,
+      role: "assistant",
+      content: "The intake desk is back on this chat. I can keep collecting facts. This is not legal advice and does not create an attorney-client relationship.",
+      createdAt: now.toISOString(),
+    });
+    session.updatedAt = now.toISOString();
+    return { session };
   });
 }
 

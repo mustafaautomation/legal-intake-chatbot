@@ -1,7 +1,7 @@
 export function Markdown({ text }: { text: string }) {
   const blocks = text.split(/\n\n+/);
   return (
-    <div className="space-y-3 text-sm leading-6">
+    <div className="space-y-3 text-[14.5px] leading-[22px]">
       {blocks.map((block, index) => {
         const lines = block.split("\n");
         const list = lines.every((line) => /^(\s*[-•]|\s*\d+\.)\s+/.test(line));

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inbox } from "@/components/inbox";
+import { AdminInbox } from "@/components/admin-inbox";
 import { Pipeline } from "@/components/pipeline";
 import { listInbox, listMatters } from "@/lib/store";
 
@@ -11,7 +11,7 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
       <Pipeline initial={matters} />
-      <Inbox sessions={inbox.sessions} tickets={inbox.tickets} />
+      <AdminInbox sessions={inbox.sessions} tickets={inbox.tickets} />
     </main>
   );
 }

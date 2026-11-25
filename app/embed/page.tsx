@@ -1,8 +1,14 @@
-import type { Metadata } from "next";
-import { ChatDesk } from "@/components/chat-desk";
+"use client";
 
-export const metadata: Metadata = { title: "Intake widget — Harlow & Pierce LLP" };
+import { useEffect } from "react";
+import { ChatDock } from "@/components/chat/chat-dock";
 
 export default function EmbedPage() {
-  return <ChatDesk embedded />;
+  useEffect(() => {
+    document.documentElement.dataset.embed = "true";
+    const theme = new URLSearchParams(window.location.search).get("theme");
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    if (theme === "light") document.documentElement.classList.remove("dark");
+  }, []);
+  return <ChatDock mode="embed" />;
 }

@@ -64,7 +64,7 @@ export function IntakeFile({ session }: { session: Session | null }) {
         {rows.map(([label, value]) => (
           <div key={label} className="grid min-w-0 grid-cols-[7rem_minmax(0,1fr)] gap-2 border-t border-line pt-2">
             <dt className="text-muted">{label}</dt>
-            <dd className="min-w-0 break-all">{value}</dd>
+            <dd className="min-w-0 break-words">{value}</dd>
           </div>
         ))}
       </dl>

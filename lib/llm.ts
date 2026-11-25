@@ -147,11 +147,14 @@ async function liveTurn(session: Session, message: string, ctx: TurnContext): Pr
   return demo;
 }
 
-export async function respond(session: Session, message: string, ctx: TurnContext): Promise<Outcome> {
-  if (demoMode()) return applyTurn(session, message, ctx);
+export async function respond(session: Session, message: string, ctx: TurnContext): Promise<Outcome & { mode: "live" | "demo" }> {
+  if (demoMode()) return { ...applyTurn(session, message, ctx), mode: "demo" };
   try {
-    return await liveTurn(session, message, ctx);
+    const outcome = await liveTurn(session, message, ctx);
+    const demoText = applyTurn(session, message, ctx).session.messages.at(-1)?.content;
+    const liveText = outcome.session.messages.at(-1)?.content;
+    return { ...outcome, mode: liveText && liveText !== demoText ? "live" : "demo" };
   } catch {
-    return applyTurn(session, message, ctx);
+    return { ...applyTurn(session, message, ctx), mode: "demo" };
   }
 }

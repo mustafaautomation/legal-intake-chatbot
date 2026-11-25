@@ -36,27 +36,22 @@ import { detectUrgency } from "./urgency";
 export const STARTERS: Suggestion[] = [
   {
     id: "injury",
-    label: "Rear-end injury",
+    label: "I was rear-ended last month",
     send: "I was rear-ended last month on Harbor Avenue in Ashford. I have a herniated disc and I've been treating with an orthopedist. The other driver was Marcus Bell from Northwind Couriers.",
   },
   {
     id: "fired",
-    label: "I was fired",
+    label: "I was let go from my job",
     send: "I was fired last month by my employer in Ashford. I want to talk about the termination.",
   },
   {
     id: "fees",
-    label: "What are your fees?",
+    label: "What does a consult cost?",
     send: "What are your fees for a personal injury matter?",
   },
   {
-    id: "advice",
-    label: "Can you give advice?",
-    send: "Should I accept the insurance company's settlement offer?",
-  },
-  {
     id: "human",
-    label: "Talk to a person",
+    label: "Talk to the intake team",
     send: "I want to talk to a human.",
   },
 ];

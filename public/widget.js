@@ -1,57 +1,64 @@
 (function () {
   var script = document.currentScript || document.querySelector("script[src*='widget.js']");
-  if (!script) return;
+  if (!script || window.__hpIntake) return;
+  window.__hpIntake = true;
   var origin = new URL(script.src, window.location.href).origin;
-  var root = document.createElement("div");
-  root.style.position = "fixed";
-  root.style.right = "16px";
-  root.style.bottom = "16px";
-  root.style.zIndex = "2147483000";
-  root.style.fontFamily = "Georgia, serif";
-
+  var position = script.getAttribute("data-position") === "left" ? "left" : "right";
+  var theme = script.getAttribute("data-theme") || "system";
   var frame = document.createElement("iframe");
-  frame.src = origin + "/embed";
+  frame.id = "hp-intake-frame";
   frame.title = "Harlow and Pierce intake chat";
   frame.setAttribute("aria-label", "Harlow and Pierce intake chat");
-  frame.style.display = "none";
-  frame.style.width = "min(380px, calc(100vw - 32px))";
-  frame.style.height = "min(640px, calc(100vh - 96px))";
-  frame.style.border = "1px solid #d9d0c2";
-  frame.style.background = "#f7f1e6";
-  frame.style.marginBottom = "12px";
-  frame.style.boxShadow = "0 12px 40px rgba(28,25,21,0.18)";
-
-  var button = document.createElement("button");
-  button.type = "button";
-  button.textContent = "Intake";
-  button.setAttribute("aria-label", "Open Harlow and Pierce intake chat");
-  button.setAttribute("aria-expanded", "false");
-  button.setAttribute("aria-controls", "hp-intake-frame");
-  frame.id = "hp-intake-frame";
-  button.style.width = "64px";
-  button.style.height = "64px";
-  button.style.borderRadius = "999px";
-  button.style.border = "0";
-  button.style.background = "#1c1915";
-  button.style.color = "#f7f1e6";
-  button.style.cursor = "pointer";
-  button.style.float = "right";
-
-  function setOpen(open) {
-    frame.style.display = open ? "block" : "none";
-    button.setAttribute("aria-expanded", open ? "true" : "false");
-    button.setAttribute("aria-label", open ? "Close Harlow and Pierce intake chat" : "Open Harlow and Pierce intake chat");
-    button.textContent = open ? "Close" : "Intake";
+  frame.src = origin + "/embed?position=" + position + "&theme=" + encodeURIComponent(theme);
+  frame.style.position = "fixed";
+  frame.style.zIndex = "2147483000";
+  frame.style.border = "0";
+  frame.style.background = "transparent";
+  frame.style.colorScheme = "normal";
+  frame.style.width = "280px";
+  frame.style.height = "220px";
+  frame.style.bottom = "16px";
+  function place(open, mobile) {
+    var pad = mobile ? "16px" : "24px";
+    if (open && mobile) {
+      frame.style.top = "0";
+      frame.style.left = "0";
+      frame.style.right = "0";
+      frame.style.bottom = "0";
+      frame.style.width = "100%";
+      frame.style.height = "100%";
+      return;
+    }
+    frame.style.top = "auto";
+    frame.style.bottom = pad;
+    frame.style.left = position === "left" ? pad : "auto";
+    frame.style.right = position === "right" ? pad : "auto";
+    if (open) {
+      frame.style.width = window.innerWidth < 1024 ? "380px" : "400px";
+      frame.style.height = "min(756px, calc(100dvh - 48px))";
+    } else {
+      frame.style.width = "300px";
+      frame.style.height = "240px";
+    }
   }
-
-  button.addEventListener("click", function () {
-    setOpen(frame.style.display === "none");
+  place(false, window.innerWidth < 640);
+  window.addEventListener("message", function (event) {
+    if (event.origin !== origin || !event.data || event.data.type !== "hp-resize") return;
+    place(Boolean(event.data.open), Boolean(event.data.mobile));
   });
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") setOpen(false);
+  function syncHost() {
+    if (!frame.contentWindow) return;
+    frame.contentWindow.postMessage({ type: "hp-host", width: window.innerWidth, height: window.innerHeight }, origin);
+    if (theme === "dark" || theme === "light") frame.contentWindow.postMessage({ type: "hp-theme", theme: theme }, origin);
+  }
+  frame.addEventListener("load", syncHost);
+  var tries = 0;
+  var timer = setInterval(function () {
+    syncHost();
+    if (++tries > 20) clearInterval(timer);
+  }, 150);
+  window.addEventListener("resize", function () {
+    if (frame.contentWindow) frame.contentWindow.postMessage({ type: "hp-host", width: window.innerWidth, height: window.innerHeight }, origin);
   });
-
-  root.appendChild(frame);
-  root.appendChild(button);
-  document.body.appendChild(root);
+  document.body.appendChild(frame);
 })();

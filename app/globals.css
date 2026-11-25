@@ -1,29 +1,236 @@
 @import "tailwindcss";
 
+:root {
+  --background: #f7f3ec;
+  --foreground: #1a1714;
+  --surface: #fffcf8;
+  --surface-2: #f3eee6;
+  --muted: #efe8dc;
+  --muted-foreground: #5c5348;
+  --border: #e4dcd0;
+  --accent: #1a1714;
+  --accent-foreground: #f7f3ec;
+  --accent-soft: color-mix(in srgb, #1a1714 14%, transparent);
+  --brass: #a68446;
+  --ring: var(--accent);
+  --success: #1f7a4d;
+  --warning: #c47a12;
+  --danger: #c0362c;
+  --info: #2b6cb0;
+  --radius-widget: 24px;
+  --radius-card: 16px;
+  --radius-bubble: 18px;
+  --radius-chip: 9999px;
+  --radius-control: 14px;
+  --radius-launcher: 9999px;
+  --shadow-launcher: 0 8px 24px color-mix(in srgb, var(--accent) 35%, rgba(15, 18, 22, 0.18));
+  --shadow-widget: 0 18px 50px rgba(15, 18, 22, 0.2), 0 2px 8px rgba(15, 18, 22, 0.06);
+  --shadow-card: 0 1px 2px rgba(15, 18, 22, 0.06), 0 8px 24px rgba(15, 18, 22, 0.06);
+  --font-sans: var(--font-geist), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+}
+
+.dark {
+  --background: #12110f;
+  --foreground: #f4efe6;
+  --surface: #1c1a17;
+  --surface-2: #26231f;
+  --muted: #2a2622;
+  --muted-foreground: #c9c0b4;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #c4a56a;
+  --accent-foreground: #12110f;
+  --accent-soft: color-mix(in srgb, #c4a56a 18%, transparent);
+  --brass: #c4a56a;
+}
+
 @theme inline {
-  --font-sans: var(--font-source);
-  --font-serif: var(--font-fraunces);
-  --color-paper: #efe6d6;
-  --color-sheet: #f7f1e6;
-  --color-ink: #1c1915;
-  --color-muted: #5c5348;
-  --color-brass: #8a6232;
-  --color-brass-soft: #eadcc8;
-  --color-pine: #1e3a32;
-  --color-pine-soft: #e4efe8;
-  --color-alert: #7a2e2e;
-  --color-alert-soft: #f8e8e4;
-  --color-line: #d9d0c2;
+  --font-sans: var(--font-geist), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --color-paper: var(--background);
+  --color-sheet: var(--surface);
+  --color-ink: var(--foreground);
+  --color-muted: var(--muted-foreground);
+  --color-brass: var(--brass);
+  --color-brass-soft: var(--accent-soft);
+  --color-line: var(--border);
+  --color-alert: var(--danger);
+  --color-alert-soft: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  --color-pine: var(--success);
+  --color-pine-soft: color-mix(in srgb, var(--success) 14%, var(--surface));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-source), "Source Sans 3", sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+html[data-embed="true"],
+html[data-embed="true"] body {
+  background: transparent !important;
 }
 
 ::selection {
-  background: #e7d3b4;
+  background: var(--accent-soft);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.chat-widget-shell {
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, white 30%);
+  border-radius: var(--radius-widget);
+  box-shadow: var(--shadow-widget);
+  overflow: hidden;
+}
+
+.dark .chat-widget-shell {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .chat-widget-shell,
+  .nudge-pill,
+  .teaser-bubble {
+    background: var(--surface);
+  }
+}
+
+.chat-launcher {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-launcher);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  box-shadow: var(--shadow-launcher), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.chat-launcher:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chat-launcher:hover {
+    transform: scale(1.06);
+  }
+}
+
+@media (max-width: 639px) {
+  .chat-launcher {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.nudge-pill,
+.teaser-bubble {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, white 30%);
+  box-shadow: var(--shadow-card);
+}
+
+.thin-scroll {
+  scrollbar-width: none;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 12px;
+  margin-left: 2px;
+  background: var(--accent);
+  animation: caret-blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.phase-dots span {
+  animation: dot-pulse 1.2s infinite;
+}
+
+.phase-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.phase-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes dot-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+html[data-visual-test] .stream-caret,
+html[data-visual-test] .phase-dots span,
+html[data-visual-test] .shimmer {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-caret,
+  .phase-dots span,
+  .shimmer,
+  .chat-launcher {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--surface) 40%, var(--muted)), var(--muted));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 
 @media print {

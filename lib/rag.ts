@@ -139,9 +139,20 @@ export function searchKb(query: string, k = 3): ScoredChunk[] {
     .slice(0, k);
 }
 
+export function excerptOf(body: string): string {
+  const clean = body.replace(/[#*_]/g, "").replace(/\s+/g, " ").trim();
+  const sentence = clean.match(/^(.+?[.])(?:\s|$)/);
+  const text = sentence?.[1] ?? clean.slice(0, 180);
+  return text.length > 180 ? `${text.slice(0, 177).trim()}…` : text;
+}
+
+export function getChunk(id: string): Chunk | undefined {
+  return getChunks().find((chunk) => chunk.id === id);
+}
+
 export function renderKbAnswer(query: string): {
   text: string;
-  citations: Array<{ id: string; title: string; source: string }>;
+  citations: Array<{ id: string; title: string; source: string; excerpt?: string }>;
   confident: boolean;
   coverage: number;
 } {
@@ -162,7 +173,7 @@ export function renderKbAnswer(query: string): {
   const text = `${lead}${top.chunk.body}\n\nSource: ${top.chunk.title} · ${top.chunk.source}`;
   return {
     text,
-    citations: [{ id: top.chunk.id, title: top.chunk.title, source: top.chunk.source }],
+    citations: [{ id: top.chunk.id, title: top.chunk.title, source: top.chunk.source, excerpt: excerptOf(top.chunk.body) }],
     confident: true,
     coverage: top.coverage,
   };

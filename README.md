@@ -29,12 +29,13 @@ docker compose up --build
 
 ## Features
 
-- Landing page with the four practice areas, fee figures, and a diagram of the desk.
-- Web chat with streaming replies, a typing state, quick-reply chips, markdown, and source citations.
+- Landing page with a live hero chat, a trust panel, try-asking chips, and a metrics strip.
+- Web chat with a branded launcher and teaser, streaming replies, follow-up chips, slot chips, a lead card, labelled message actions, and citation chips.
+- The header shows Demo mode offline and Live AI when Groq or Gemini actually phrases the reply.
 - Embeddable widget: one script tag injects a launcher and an iframe. See `/embed-demo`.
 - Retrieval over 26 markdown notes in `kb/`, using BM25 blended with a local hashed embedding. No paid embedding API. Low confidence opens a handoff instead of guessing.
 - Tools, validated with Zod: `classify_matter`, `run_conflict_check`, `collect_intake`, `score_case`, `schedule_consultation`, `create_crm_matter`, `search_kb`, `request_handoff`.
-- Staff pipeline and inbox at `/admin`: qualified and unqualified leads, tool calls, handoff tickets, and a printable intake summary.
+- Staff pipeline and a two-pane inbox at `/admin`: transcripts, tool calls, handoff tickets, and a Resume bot control.
 - WhatsApp and Messenger webhooks map onto the same agent. See [docs/channels.md](docs/channels.md).
 - Guardrails: legal-advice refusals, off-topic refusals, prompt-injection resistance, urgent handoff (court tomorrow, detention, domestic violence), and phone/email masking in the audit log.
 - With `GROQ_API_KEY`, replies can be phrased by Groq `llama-3.3-70b-versatile` with tool calling. `GEMINI_API_KEY` is the fallback (`gemini-2.0-flash`, then `gemini-2.5-flash`). If neither key is set, the deterministic demo engine runs the tools itself. CI uses that engine.
@@ -137,6 +138,16 @@ npm run test:e2e
 GitHub Actions runs lint, typecheck, unit tests, evals, the production build, and Playwright. Jobs do not use `continue-on-error`.
 
 Screenshots from the browser pass live in `docs/screenshots/`.
+
+![Landing](docs/screenshots/landing.png)
+
+![Widget with a fee card](docs/screenshots/widget.png)
+
+![Booked consult](docs/screenshots/chat-booked.png)
+
+![Pipeline and inbox](docs/screenshots/pipeline.png)
+
+![Closed launcher](docs/screenshots/visual/launcher-closed.png)
 
 ## Deploy
 
