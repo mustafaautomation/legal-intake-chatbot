@@ -44,7 +44,7 @@ test("asking for a person opens a handoff", async ({ page }) => {
   await expect(page.getByText(/opened a handoff/i)).toBeVisible();
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Inbox" })).toBeVisible();
-  await expect(page.getByText("Avery Cole")).toBeVisible();
+  await expect(page.getByText("Avery Cole", { exact: true })).toBeVisible();
   await page.screenshot({ path: path.join(shots, "pipeline.png"), fullPage: true });
 });
 
