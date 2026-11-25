@@ -228,7 +228,7 @@ function slotBlock(session: Session, ctx: TurnContext): { text: string; suggesti
   const lines = slots.map((slot) => `• ${slot.label} — ${slot.attorney}`).join("\n");
   return {
     text: lines || "I don’t have an open screening time on the demo calendar. Call (555) 014-2200.",
-    suggestions: slots.map((slot) => ({ id: slot.id, label: slot.label, send: `book:${slot.id}` })),
+    suggestions: slots.map((slot) => ({ id: slot.id, label: slot.label, send: slot.label })),
   };
 }
 

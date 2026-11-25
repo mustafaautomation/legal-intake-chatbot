@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PrintButton } from "@/components/print-button";
 import { Badge } from "@/components/ui/badge";
 import { DISCLAIMER, FIRM, PRACTICE_LABEL, TOOL_LABELS } from "@/lib/firm";
+import { displayTurnText } from "@/lib/slots";
 import { getMatter } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -91,7 +92,7 @@ export default async function MatterPage({ params }: { params: Promise<{ id: str
               {session.messages.map((message) => (
                 <div key={message.id}>
                   <p className="text-xs uppercase tracking-wide text-muted">{message.role === "user" ? "Caller" : "Desk"}</p>
-                  <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                  <p className="whitespace-pre-wrap text-sm leading-6">{message.role === "user" ? displayTurnText(message.content) : message.content}</p>
                   {message.tools && message.tools.length > 0 ? (
                     <p className="mt-1 text-xs text-muted">{message.tools.map((tool) => TOOL_LABELS[tool.name] ?? tool.name).join(" · ")}</p>
                   ) : null}

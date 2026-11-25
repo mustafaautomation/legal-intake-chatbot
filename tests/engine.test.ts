@@ -3,7 +3,7 @@ import { classifyMatter } from "../lib/classify";
 import { runConflictCheck } from "../lib/conflict";
 import { extractFacts } from "../lib/extract";
 import { searchKb } from "../lib/rag";
-import { openSlots } from "../lib/slots";
+import { matchSlot, openSlots } from "../lib/slots";
 import { detectUrgency } from "../lib/urgency";
 import { evaluateScenario, NOW, SCENARIOS } from "../evals/scenarios";
 
@@ -48,9 +48,11 @@ describe("tools", () => {
   });
 
   it("offers weekday morning slots in Chicago", () => {
-    const [first] = openSlots(NOW, "personal_injury", []);
+    const slots = openSlots(NOW, "personal_injury", []);
+    const [first, second] = slots;
     expect(first.label).toContain("10:00 AM");
     expect(first.label).toContain("Thu");
     expect(first.attorney).toBe("Elena Harlow");
+    expect(matchSlot(second.label, slots)?.id).toBe(second.id);
   });
 });

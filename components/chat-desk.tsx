@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Markdown } from "@/components/markdown";
+import { displayTurnText } from "@/lib/slots";
 import { DISCLAIMER, TOOL_LABELS } from "@/lib/firm";
 import type { ChatMessage, Session } from "@/lib/types";
 import { IntakeFile } from "@/components/intake-file";
@@ -126,7 +127,7 @@ export function ChatDesk({ embedded = false }: { embedded?: boolean }) {
                 {message.role === "user" ? "You" : "Intake desk"}
               </p>
               <div className={message.role === "user" ? "bg-ink px-3 py-2 text-sheet" : "border-l-2 border-brass pl-3"}>
-                <Markdown text={message.content} />
+                <Markdown text={message.role === "user" ? displayTurnText(message.content) : message.content} />
               </div>
               {message.tools && message.tools.length > 0 ? (
                 <ul className="mt-2 flex flex-wrap gap-1.5">

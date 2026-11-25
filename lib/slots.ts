@@ -37,9 +37,19 @@ export function openSlots(now: Date, area: PracticeArea | null, taken: string[],
   return slots;
 }
 
+export function displayTurnText(content: string): string {
+  const booked = content.trim().match(/^book:(slot-(.+))$/);
+  if (!booked) return content;
+  const when = new Date(booked[2]);
+  if (Number.isNaN(when.getTime())) return content;
+  return formatSlotLabel(when);
+}
+
 export function matchSlot(message: string, slots: OpenSlot[]): OpenSlot | null {
   const book = message.trim().match(/^book:(slot-.+)$/);
   if (book) return slots.find((slot) => slot.id === book[1]) ?? null;
+  const exact = slots.find((slot) => slot.label.toLowerCase() === message.trim().toLowerCase());
+  if (exact) return exact;
   if (/\b(first|earliest)\b/i.test(message)) return slots[0] ?? null;
   const lowered = message.toLowerCase();
   return (

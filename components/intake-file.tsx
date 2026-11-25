@@ -62,9 +62,9 @@ export function IntakeFile({ session }: { session: Session | null }) {
       <dl className="space-y-2">
         {rows.length === 0 ? <p className="text-muted">No facts collected yet.</p> : null}
         {rows.map(([label, value]) => (
-          <div key={label} className="grid grid-cols-[7rem_1fr] gap-2 border-t border-line pt-2">
+          <div key={label} className="grid min-w-0 grid-cols-[7rem_minmax(0,1fr)] gap-2 border-t border-line pt-2">
             <dt className="text-muted">{label}</dt>
-            <dd>{value}</dd>
+            <dd className="min-w-0 break-all">{value}</dd>
           </div>
         ))}
       </dl>
