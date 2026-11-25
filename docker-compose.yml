@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    ports:
+      - "43123:43123"
+    environment:
+      DATA_PATH: /app/data/intake.json
+    volumes:
+      - intake-data:/app/data
+
+volumes:
+  intake-data:
